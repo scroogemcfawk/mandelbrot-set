@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en" style="background-color: black;">
+<head>
+    <meta charset="UTF-8">
+    <title>Yee haw!</title>
+    <script src="https://cdn.jsdelivr.net/npm/p5@1.8.0/lib/p5.js"></script>
+</head>
+<body onkeypress="move(event)">
+<div id="fps">
+    fps: 0
+</div>
+<div id="status">status: waiting</div>
+<div id="viewport">
+    viewport:
+    <div id="x">  x: - -</div>
+    <div id="y">  y: - -</div>
+</div>
+<div>
+    <p>"+" - zoom in</p>
+    <p>"-" - zoom out</p>
+    <p>"w" - move -y (up); "i" - increase threshold</p>
+    <p>"a" - move -x (left); "k" - decrease threshold</p>
+    <p>"s" - move +y (down); "l" - increase interation limit</p>
+    <p>"d" - move +x (right); "j" - increase interation limit</p>
+    <br>
+</div>
+</body>
+<script src="sketch.js"></script>
+<script>
+    let globalTimeout = [];
+    function move(e) {
+        if (block) {return}
+        while (globalTimeout.length > 0) {
+            clearTimeout(globalTimeout.shift())
+        }
+        document.getElementById("status").innerText = "status: cancelled"
+        switch (e.key) {
+            case "+":
+                zoom = zoom * 2.0;
+                scale = 1.0 / zoom;
+                break;
+            case "-":
+                zoom = zoom / 2.0;
+                scale = 1.0 / zoom;
+                break;
+            case "w":
+                y_offset -= scale * offset_scale
+                break;
+            case "s":
+                y_offset += scale * offset_scale
+                break;
+            case "d":
+                x_offset += scale * offset_scale
+                break;
+            case "a":
+                x_offset -= scale * offset_scale
+                break;
+            case "i":
+                threshold *=  2
+                break;
+            case "k":
+                threshold /=  2
+                break;
+            case "l":
+                iteration_limit *=  2
+                break;
+            case "j":
+                iteration_limit /=  2
+                break;
+            default:
+                console.log("Unsupported key" + e.key)
+                break;
+        }
+        globalTimeout = setTimeout(
+            () => {
+                document.getElementById("status").innerText = "status: drawing";
+                draw();
+                document.getElementById("status").innerText = "status: done";
+            },
+            300
+        )
+        document.getElementById("status").innerText = "status: scheduled"
+        document.getElementById("fps").innerText = "fps: " + round(frameRate(), 2)
+        document.getElementById("x").innerText = "  x: " + (-scale + x_offset) + " " + (scale + x_offset )
+        document.getElementById("y").innerText = "  y: " + (-scale + y_offset) + " " + (scale + y_offset )
+    }
+</script>
+<style>
+    body {
+        color: white;
+        font-family: monospace;
+        background-color: black;
+    }
+    canvas {
+        background-color: black;
+    }
+    /*#fps, #viewport {*/
+    /*    display: inline-block;*/
+    /*}*/
+    #x, #y {
+        white-space: pre;
+    }
+</style>
+</html>
